@@ -1,5 +1,5 @@
-In this wiki I intend to write about how to reverse engineer and mod Minecraft Bedrock Edition, the wiki will mostly be focused around using [Amethyst](https://github.com/FrederoxDev/Amethyst) for modding, but all of the ideas and knowledge in this wiki won't be specific to it.
+在这个Wiki中，我打算写关于如何逆向工程和修改Minecraft Bedrock Edition（基岩版）的内容。这个Wiki将主要围绕使用[Amethyst](https://github.com/FrederoxDev/Amethyst)进行modding（模组制作），但Wiki中的所有想法和知识并不局限于Amethyst。
 
-I am by no means a teacher, nor hell even a decent writer, but I hope that this wiki can be of use to some. The previous iteration of this site was based around modding 1.14 with Zenova, but now it is going to be less specific to any one version and actually applicable to modding recent versions of the game.
+我绝不是一位老师，甚至算不上一个像样的写作者，但我希望这个Wiki能对某些人有所帮助。这个网站的先前版本是基于使用Zenova修改1.14版本的，但现在它将不再局限于任何一个版本，并且实际上适用于修改游戏的最新版本。
 
-So far I have written up a few basic introductory guides to identifying functions on the client, and I plan to add to this project over time. For any feedback please either make an issue on the repository for this wiki, or send me a message on discord `@frederox`, feedback is greatly appreciated and will help improve this wiki.
+到目前为止，我已经编写了一些关于在客户端上识别函数的基础入门指南，并且我计划随着时间的推移继续完善这个项目。如有任何反馈，请在Wiki的仓库中提交issue（问题），或在Discord上给我发消息 `@frederox`。非常感谢您的反馈，这将有助于改进这个Wiki。
