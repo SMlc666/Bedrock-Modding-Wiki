@@ -1,31 +1,31 @@
-# Signatures
+## 签名
 
-To identify a function from within a mod, we can use something called a **signature**, a function's signature is made by looking at the bytes of a function, and finding a section of unique bytes to this function. Luckily, we don't need to look at the bytes of the function ourselves, instead, we can use a signature generator plug-in inside of IDA.
+为了从模组中识别一个函数，我们可以使用一种叫做**签名**的东西。一个函数的签名是通过查看该函数的字节码，并找到一段对该函数来说是独一无二的字节序列来生成的。幸运的是，我们不需要自己查看函数的字节码，而是可以使用IDA中的签名生成器插件。
 
-A signature generator plug-in will likely come with your installation of IDA, but in the case where it doesn't you can get the plug-in [here](https://github.com/A200K/IDA-Pro-SigMaker).
+签名生成器插件通常会随你的IDA安装一起提供，但如果你的IDA没有这个插件，你可以从[这里](https://github.com/A200K/IDA-Pro-SigMaker)获取。
 
-## Generating a signature
+### 生成签名
 
 > [!IMPORTANT]
-Inside the pseudocode window, ensure your cursor is selected on the function name. It is important to ensure that you generate a signature at the beginning of the function.
+> 在伪代码窗口中，请确保你的光标选中在函数名上。 务必确保你在函数的开头生成签名，这一点非常重要。
 
 ![](/concepts/signatures/cursor-on-start.png)
 
-Next, hit the key combination `Ctrl + Alt + S` or press `Edit > Plugins > Signature Maker`, and leave the default options provided, as shown in the screenshot below.
+接下来，按下组合键 `Ctrl + Alt + S` 或点击 `Edit > Plugins > Signature Maker`，并保留提供的默认选项，如下图所示。
 
 ![](/concepts/signatures/signature-maker-options.png)
 
-Finally, then press `OK`. Next look for the `Output` window, inside the signature for this function should be printed. Simply from here, copy your signature, and you're done!
+最后，点击 `OK`。然后查找 `Output` 窗口，该函数的签名应该会打印在其中。 从这里简单地复制你的签名，就完成了！
 
 ![](/concepts/signatures/signature-output.png)
 
-## Why use a signature?
+### 为什么要使用签名？
 
-Signatures are quite useful because they can identify the same function across multiple versions, assuming that the function itself wasn't modified between the two versions. For that exact reason, they are much better than using hardcoded addresses since those will always break between versions.
+签名非常有用，因为它们可以跨多个版本识别相同的函数，前提是该函数本身在两个版本之间没有被修改。 正因如此，签名比使用硬编码地址要好得多，因为硬编码地址总是会在版本之间失效。
 
-## When shouldn't you use a signature?
+### 何时不应该使用签名？
 
-Take the example where you have function A and function B, both functions are very similar
+考虑以下示例，你有函数A和函数B，这两个函数非常相似：
 
 ```c++
 void functionA(int a) {
@@ -34,6 +34,10 @@ void functionA(int a) {
 
 void functionB(int b) {
     return b + b + 6;
+}
+```
+
+在这种情况下，这两个函数通常会具有几乎相同的签名，这意味着第一个独特的字节可能在函数内部的第1000个字节之后。 通常，这是一个使用硬编码地址的好情况，因为如此大的签名使用起来会很笨拙。  return b + b + 6;
 }
 ```
 
