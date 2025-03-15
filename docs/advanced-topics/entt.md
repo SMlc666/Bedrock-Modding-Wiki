@@ -1,35 +1,29 @@
 # EnTT
 
-## Introduction
+## 简介
 
-[EnTT](https://github.com/skypjack/entt) is the [data-oriented](https://en.wikipedia.org/wiki/Data-oriented_design)
-entity component system (ECS) used by Minecraft: Bedrock Edition. It is used to store common data for entities, such
-as position and collision boxes, in discrete structs referred to as components.
+[EnTT](https://github.com/skypjack/entt) 是 Minecraft: 基岩版 使用的 [面向数据](https://en.wikipedia.org/wiki/Data-oriented_design) 的实体组件系统 (ECS)。它用于存储实体的通用数据，例如位置和碰撞箱，这些数据存储在称为组件的离散结构中。
 
-With each version release, more pieces of `Actor` data are moved from class members to dedicated components;
-fortunately, EnTT makes it possible to respond quickly to these changes and maintain up-to-date Minecraft version
-compatibility.
+随着每个版本发布，越来越多的 `Actor` 数据从类成员转移到专用组件；幸运的是，EnTT 使我们能够快速响应这些更改并保持与最新 Minecraft 版本的兼容性。
 
-For more information on EnTT, check out the highly informative and comprehensive
-[wiki](https://github.com/skypjack/entt/wiki) written by its [maintainer](https://github.com/skypjack).
+有关 EnTT 的更多信息，请查看由其 [维护者](https://github.com/skypjack) 编写的、信息量大且全面的 [wiki](https://github.com/skypjack/entt/wiki)。
 
-## Picking the Version
+## 选择版本
 
-The specific version of EnTT that is required for your Minecraft version will vary:
+您的 Minecraft 版本所需的 EnTT 具体版本会有所不同：
 
-| MC:BE Release     | EnTT Tag  | EnTT Commit Hash                           |
-|:------------------|:----------|:-------------------------------------------|
-| `1.21.0+`         | N/A       | `f931687ff04d435871ac9664bb299f71f2a8fafc` |
-| `1.20.70-1.20.8x` | `v3.13.1` | `2909e7ab1f1e73a36f778319070695611e3fa47b` |
-| `1.20.50-1.20.6x` | N/A       | `62a13526c989f14eff348c28c061542ac7a16d45` |
-| `1.20.4x`         | N/A       | `717897052477515260bde3fd21fe987662666621` |
+| MC:BE 版本         | EnTT 标签  | EnTT Commit 哈希值                         |
+|:-------------------|:-----------|:--------------------------------------------|
+| `1.21.0+`           | N/A        | `f931687ff04d435871ac9664bb299f71f2a8fafc` |
+| `1.20.70-1.20.8x`  | `v3.13.1`  | `2909e7ab1f1e73a36f778319070695611e3fa47b` |
+| `1.20.50-1.20.6x`  | N/A        | `62a13526c989f14eff348c28c061542ac7a16d45` |
+| `1.20.4x`           | N/A        | `717897052477515260bde3fd21fe987662666621` |
 
-## Including EnTT
+## 包含 EnTT
 
-*This guide only addresses including EnTT for CMake based projects.*
+*本指南仅介绍基于 CMake 的项目如何包含 EnTT。*
 
-The CMake [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) module can be used to download
-and include EnTT's CMake project from a git commit hash or tag:
+CMake 的 [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) 模块可用于从 git commit 哈希值或标签下载并包含 EnTT 的 CMake 项目：
 ```CMake
 include(FetchContent)
 
@@ -43,20 +37,17 @@ FetchContent_MakeAvailable(EnTT)
 target_link_libraries(MyTarget PRIVATE EnTT::EnTT)
 ```
 
-Alternatively, if a package repository is configured in your environment, `find_package` can be used as a less verbose
-option. However, only official releases that are published to the repository will be available, not necessarily specific
-commits.
+或者，如果您的环境中配置了软件包仓库，则可以使用 `find_package` 作为不太冗长的选项。但是，只有发布到仓库的官方版本才可用，不一定是特定的 commit。
 ```CMake
 find_package(EnTT 3.13.1 CONFIG REQUIRED)
 target_link_libraries(MyTarget PRIVATE EnTT::EnTT)
 ```
 
-## Configuration
+## 配置
 
-Mojang has configured EnTT in multiple ways to suit the needs of Minecraft: Bedrock Edition. In order for your mod to
-have binary compatibility with Minecraft and avoid runtime errors, the configuration of EnTT must match exactly.
+Mojang 以多种方式配置了 EnTT，以满足 Minecraft: 基岩版的需要。为了使您的 Mod 与 Minecraft 具有二进制兼容性并避免运行时错误，EnTT 的配置必须完全匹配。
 
-The first step is to define a custom entity identifier type:
+第一步是定义自定义实体标识符类型：
 
 ```C++
 struct EntityId {
@@ -70,8 +61,7 @@ struct EntityId {
 };
 ```
 
-In order to use the custom identifier type with EnTT, an `entt::entt_traits` specialization must be defined (All the
-numeric values below are specific to Mojang's specialization of EnTT and were extracted through reverse engineering):
+为了将自定义标识符类型与 EnTT 一起使用，必须定义 `entt::entt_traits` 特化（以下所有数值都特定于 Mojang 的 EnTT 特化，并通过逆向工程提取）：
 
 ```C++
 struct EntityIdTraits {
@@ -80,8 +70,8 @@ struct EntityIdTraits {
     using entity_type = std::uint32_t;
     using version_type = std::uint16_t;
 
-    static constexpr entity_type entity_mask = 0x3FFFF; // lower 18 bits of raw id
-    static constexpr entity_type version_mask = 0x3FFF; // upper 14 bits of raw id
+    static constexpr entity_type entity_mask = 0x3FFFF; // raw id 的低 18 位
+    static constexpr entity_type version_mask = 0x3FFF; // raw id 的高 14 位
 };
 ```
 ```C++
@@ -91,8 +81,7 @@ struct entt::entt_traits<EntityId> : entt::basic_entt_traits<EntityIdTraits> {
 };
 ```
 
-Next, component storage must be configured. The method demonstrated below is done by creating a base class that all
-components will be derived from, and then specializing `entt::component_traits` for derivatives of that base class.
+接下来，必须配置组件存储。下面演示的方法是通过创建一个所有组件都将从中派生的基类，然后为该基类的派生类特化 `entt::component_traits`。
 
 ```C++
 struct IEntityComponent {};
@@ -105,9 +94,7 @@ struct entt::component_traits<Type> {
 };
 ```
 
-Lastly, [signal handlers](https://github.com/skypjack/entt/wiki/Crash-Course:-entity-component-system#observe-changes)
-must be disabled for `EntityId` derived storage types, this is done by specializing `entt::storage_type`, and not
-wrapping `entt::basic_storage` in `entt::sigh_mixin` (like the default specialization does).
+最后，必须为 `EntityId` 派生的存储类型禁用 [信号处理程序](https://github.com/skypjack/entt/wiki/Crash-Course:-entity-component-system#observe-changes)，这通过特化 `entt::storage_type` 来完成，并且不将 `entt::basic_storage` 包装在 `entt::sigh_mixin` 中（就像默认特化所做的那样）。
 
 ```C++
 template<typename Type>
@@ -116,85 +103,72 @@ struct entt::storage_type<Type, EntityId> {
 };
 ```
 
-Now you have a properly configured environment for EnTT which is
-[ABI](https://en.wikipedia.org/wiki/Application_binary_interface) compatible with Minecraft: Bedrock Edition.
+现在您已经为 EnTT 配置了适当的环境，该环境与 Minecraft: 基岩版 [ABI](https://en.wikipedia.org/wiki/Application_binary_interface) 兼容。
 
 > [!IMPORTANT]
-> All usages of EnTT within your code need to have visibility to the specializations that are provided above. An easy
-> way of guaranteeing this is to put the specializations in the same header that is defining `EntityId`, as everything
-> else will be dependent upon it.
+> 您代码中 EnTT 的所有用法都需要能够访问上面提供的特化。保证这一点的简单方法是将特化放在定义 `EntityId` 的同一个头文件中，因为其他所有内容都将依赖于它。
 
-## Defining Components
+## 定义组件
 
-When defining components, there are a few key things that must be matched to the game:
+定义组件时，有几个关键事项必须与游戏匹配：
 
-1. The type name
-2. The type's class/struct designation
-3. The type size
-4. The type's hash
+1. 类型名称
+2. 类型的类/结构体指定
+3. 类型大小
+4. 类型的哈希值
 
-### Matching the Declaration
+### 匹配声明
 
-Component names and their and class/struct designation are simple enough to find. EnTT leaves strings in all Minecraft:
-Bedrock Edition binaries as part of type name stored in the static `entt::type_info<T>` instance for all components;
-however, only Windows binaries compiled with MSVC will include the class/struct designation:
+组件名称及其类/结构体指定很容易找到。EnTT 在所有 Minecraft: 基岩版 二进制文件中都留下了字符串，作为存储在所有组件的静态 `entt::type_info<T>` 实例中的类型名称的一部分；但是，只有使用 MSVC 编译的 Windows 二进制文件才会包含类/结构体指定：
 
-![type names in binary strings](/advanced-topics/entt/stripped_type_name.png)
+![二进制字符串中的类型名称](/advanced-topics/entt/stripped_type_name.png)
 
 > [!TIP]
-> The majority of entity components are `struct` types. A few notable `class` exceptions are `ActorOwnerComponent` and
-> `FlagComponent`.
+> 大多数实体组件都是 `struct` 类型。一些值得注意的 `class` 异常是 `ActorOwnerComponent` 和 `FlagComponent`。
 
-We'll be taking a look at `ActorEquipmentComponent` for this guide. Looking back at the screenshot with all the type
-names, we can begin a definition:
+在本指南中，我们将研究 `ActorEquipmentComponent`。回顾包含所有类型名称的屏幕截图，我们可以开始定义：
 
 ```C++
 struct ActorEquipmentComponent : IEntityComponent {};
 ```
 
-### Finding the Size
+### 查找大小
 
-There are multiple methods for finding the size of a component through IDA. The exact method used will be dependent on
-the component, but the easiest way is finding the codegen for `entt::basic_registry<EntityId>::try_get<T>(EntityId)`.
+有多种方法可以通过 IDA 查找组件的大小。使用的确切方法将取决于组件，但最简单的方法是找到 `entt::basic_registry<EntityId>::try_get<T>(EntityId)` 的代码生成。
 
-Sometimes, `try_get<T>` will get completely inlined into `Actor::tryGetComponent<T>`:
+有时，`try_get<T>` 将完全内联到 `Actor::tryGetComponent<T>` 中：
 
 ![Actor::tryGetComponent<T>](/advanced-topics/entt/tryGetComponent.png)
 
-Other times, the actual `try_get<T>` function will be available:
+其他时候，实际的 `try_get<T>` 函数将可用：
 
 ![entt::basic_registry<EntityId>::try_get<T>](/advanced-topics/entt/try_get.png)
 
-If either of these are available, the size is immediately available when decompiling the function into pseudocode. For
-`ActorEquipmentComponent`, that's `16 (0x10)` bytes:
+如果其中任何一个可用，则在将函数反编译为伪代码时，大小立即可用。对于 `ActorEquipmentComponent`，它是 `16 (0x10)` 字节：
 
 ![entt::basic_registry<EntityId>::try_get<T>](/advanced-topics/entt/size-from-try_get.png)
 
-This simple approach does not work for all components, as it is reliant on the compiler not inlining the `try_get`
-implementation. Fortunately, there does exist a foolproof solution: a `entt::basic_storage<T, EntityId>` virtual
-function table is created for every component.
+这种简单的方法并非适用于所有组件，因为它依赖于编译器不内联 `try_get` 实现。幸运的是，确实存在一个万无一失的解决方案：为每个组件创建一个 `entt::basic_storage<T, EntityId>` 虚函数表。
 
 ![entt::basic_storage<T, EntityId>::`vftable'](/advanced-topics/entt/basic_storage-vtable.png)
 
-By following the function calls from `entt::basic_storage<T, EntityId>::try_emplace`, we can end up at the size of
-the component in plain view in the pseudocode:
+通过跟踪从 `entt::basic_storage<T, EntityId>::try_emplace` 的函数调用，我们最终可以在伪代码中清楚地看到组件的大小：
 
 ![entt::basic_storage<T, EntityId>::try_emplace](/advanced-topics/entt/basic_storage-try_emplace.png)
 
-Then to `entt::basic_storage<T, EntityId>::emplace_element`:
+然后到 `entt::basic_storage<T, EntityId>::emplace_element`：
 
 ![entt::basic_storage<T, EntityId>::emplace_element](/advanced-topics/entt/basic_storage-emplace_element.png)
 
-And finally `entt::basic_storage<T, EntityId>::assure_at_least`:
+最后到 `entt::basic_storage<T, EntityId>::assure_at_least`：
 
 ![entt::basic_storage<T, EntityId>::assure_at_least](/advanced-topics/entt/basic_storage-assure_at_least.png)
 
-The component's size can be identified in the same manner as before by looking at the scale applied to the `(vN & 0x7F)`
-term. This matches the previous result of `16` bytes.
+组件的大小可以通过查看应用于 `(vN & 0x7F)` 项的比例来以与之前相同的方式识别。这与之前的 `16` 字节结果相符。
 
-### Reversing Members
+### 逆向成员
 
-Now that we have the size of the component, we can pad the definition like this:
+现在我们有了组件的大小，我们可以像这样填充定义：
 ```C++
 struct ActorEquipmentComponent : IEntityComponent {
     std::byte pad[0x10];
@@ -203,20 +177,17 @@ static_assert(sizeof(ActorEquipmentComponent) == 0x10);
 ```
 
 > [!TIP]
-> Using a `static_assert` to validate the known size of a component can turn potential runtime errors into compile time
-> errors.
+> 使用 `static_assert` 验证组件的已知大小可以将潜在的运行时错误转换为编译时错误。
 
-The next logical step is to find out what those 16 bytes are actually comprised of. Depending on the component, this can
-be extremely tedious, but a solid starting point is to examine the `try_get` usages.
+下一个合乎逻辑的步骤是找出这 16 个字节实际包含什么。根据组件的不同，这可能非常繁琐，但一个可靠的起点是检查 `try_get` 的用法。
 
-![try_get usages](/advanced-topics/entt/try_get-xrefs.png)
+![try_get 用法](/advanced-topics/entt/try_get-xrefs.png)
 
-The first usage provides some insight, line 14 in the decompiled pseudocode contains a virtual function call being
-performed on an object whose address is stored at offset 8 in the component.
+第一个用法提供了一些见解，反编译伪代码中的第 14 行包含在一个对象上执行的虚函数调用，该对象的地址存储在组件中的偏移量 8 处。
 
 ![getAllArmor](/advanced-topics/entt/xref-getAllArmor.png)
 
-Let's update the struct according to our finding:
+让我们根据我们的发现更新结构体：
 
 ```C++
 struct ActorEquipmentComponent : IEntityComponent {
@@ -225,7 +196,7 @@ struct ActorEquipmentComponent : IEntityComponent {
 };
 ```
 
-The next usage provides a bit more insight, it tells us that the unknown virtual type is actually `SimpleContainer`:
+下一个用法提供了一些更多的见解，它告诉我们未知的虚类型实际上是 `SimpleContainer`：
 
 ![getArmorContainer](/advanced-topics/entt/xref-getArmorContainer.png)
 
@@ -236,8 +207,7 @@ struct ActorEquipmentComponent : IEntityComponent {
 };
 ```
 
-And the next usage confirms the same about the data stored at offset 0 in the component: it's another pointer to a
-`SimpleContainer`:
+下一个用法证实了关于存储在组件偏移量 0 处的数据的相同信息：它是指向 `SimpleContainer` 的另一个指针：
 
 ![getHandContainer](/advanced-topics/entt/xref-getHandContainer.png)
 
@@ -248,23 +218,18 @@ struct ActorEquipmentComponent : IEntityComponent {
 };
 ```
 
-So is that it? Well, not necessarily. Entity components are intended to be owning types (they are responsible for the
-lifetimes of their members) and a raw pointer does not indicate anything in regard to ownership. Additionally,
-legitimate raw pointers are uncommon in Minecraft: Bedrock Edition.
+就这样了吗？嗯，不一定。实体组件旨在成为拥有类型（它们负责其成员的生命周期），而原始指针并不表示任何关于所有权的信息。此外，合法的原始指针在 Minecraft: 基岩版 中并不常见。
 
 > [!TIP]
-> Looking at how an object is destroyed provides direct insight into the ownership model of its data members.
+> 查看对象的销毁方式可以直接了解其数据成员的所有权模型。
 
-Referencing back to the `entt::basic_storage<T, EntityId>` vtable from earlier, we can take a look at the `pop_all`
-virtual member  function to see how the component is destroyed:
+回顾前面提到的 `entt::basic_storage<T, EntityId>` vtable，我们可以查看 `pop_all` 虚成员函数，以了解组件是如何销毁的：
 
 ![entt::basic_storage<T, EntityId>::pop_all](/advanced-topics/entt/basic_storage-pop_all.png)
 
-If you're unfamiliar with reverse engineering Windows C++ applications compiled against the Microsoft STL, this might
-not seem significant. However, it's actually indicative of a `std::unique_ptr` to a virtual type (For more on this,
-[continue reading](/advanced-topics/microsoft-stl-reversing.html#std-unique-ptr)).
+如果您不熟悉针对 Microsoft STL 编译的 Windows C++ 应用程序的逆向工程，这可能看起来并不重要。但是，它实际上表明了指向虚类型的 `std::unique_ptr`（有关更多信息，请[继续阅读](/advanced-topics/microsoft-stl-reversing.html#std-unique-ptr)）。
 
-With this information, the definition for `ActorEquipmentComponent` can be completed:
+有了这些信息，可以完成 `ActorEquipmentComponent` 的定义：
 
 ```C++
 struct ActorEquipmentComponent : IEntityComponent {
@@ -273,17 +238,14 @@ struct ActorEquipmentComponent : IEntityComponent {
 };
 ```
 
-### Type Hashes
+### 类型哈希值
 
 > [!NOTE]
-> If you are using the compiler associated with your mod's targeted Minecraft: Bedrock Edition platform, the information
-> provided in this section is not critical.
-> 
-> For more on what compiler you should be using, [continue reading](/advanced-topics/configuring-your-compiler.html#picking-a-compiler).
+> 如果您正在使用与您的 Mod 目标 Minecraft: 基岩版 平台关联的编译器，则本节中提供的信息并非至关重要。
+>
+> 有关您应该使用哪个编译器的更多信息，请[继续阅读](/advanced-topics/configuring-your-compiler.html#picking-a-compiler)。
 
-The `entt::registry` creates a storage object for each component type. In order to retrieve the storage instance at
-runtime, a hash of the component's type is used as a key into a `map<type_hash, component_storage>`. While the hash of
-a type is based on the prettified name of that type, it is not portable. Consider the following example:
+`entt::registry` 为每种组件类型创建一个存储对象。为了在运行时检索存储实例，组件类型的哈希值用作 `map<type_hash, component_storage>` 的键。虽然类型的哈希值基于该类型的美化名称，但它不是可移植的。考虑以下示例：
 
 ```C++
 template<typename T>
@@ -292,21 +254,16 @@ class FlagComponent : IEntityComponent {};
 struct OnGroundFlag {};
 ```
 
-| Compiler  | `entt::type_name<T>::value()`                | `entt::type_hash<T>::value()` |
-|:----------|:---------------------------------------------|:------------------------------|
-| MSVC      | `"class FlagComponent<struct OnGroundFlag>"` | `0x211F2DE1`                  |
-| GCC/Clang | `"FlagComponent<OnGroundFlag>"`              | `0x062EEC98`                  |
+| 编译器    | `entt::type_name<T>::value()`                 | `entt::type_hash<T>::value()` |
+|:------------|:----------------------------------------------|:-------------------------------|
+| MSVC        | `"class FlagComponent<struct OnGroundFlag>"`  | `0x211F2DE1`                   |
+| GCC/Clang   | `"FlagComponent<OnGroundFlag>"`               | `0x062EEC98`                   |
 
-This discrepancy is not an issue if you're using the recommended compiler for a given Bedrock platform. However, if you
-are using [Clang on Windows](/advanced-topics/configuring-your-compiler.html#clang-on-windows), it does become an issue.
-Clang  will produce the same type hash regardless of whether you are using it in Microsoft compatibility mode. To
-work around this problem, we can specialize `entt::type_hash`.
+如果您为给定的基岩平台使用推荐的编译器，则这种差异不是问题。但是，如果您在 Windows 上使用 [Clang](/advanced-topics/configuring-your-compiler.html#clang-on-windows)，则它会成为一个问题。无论您是否在 Microsoft 兼容模式下使用 Clang，它都会生成相同的类型哈希值。为了解决这个问题，我们可以特化 `entt::type_hash`。
 
-There are many approaches to specializing `entt::type_hash` to maintain compatibility between compilers. This guide will
-specifically address a solution for using Clang on Windows when developing mods for Bedrock Edition on Windows.
+有许多方法可以特化 `entt::type_hash` 以保持编译器之间的兼容性。本指南将专门针对在 Windows 上使用 Clang 开发基岩版 Mod 的解决方案。
 
-Building upon the previous example, let's add a few static members to our classes. For this, we'll be using
-`fixed_string` provided by [libhat](https://github.com/BasedInc/libhat):
+在之前的示例的基础上，让我们为我们的类添加一些静态成员。为此，我们将使用 [libhat](https://github.com/BasedInc/libhat) 提供的 `fixed_string`：
 
 ```C++
 template<typename T>
@@ -322,7 +279,7 @@ struct OnGroundFlag {
 };
 ```
 
-Then create a `entt::type_hash` specialization for types derived from `IEntityComponent`:
+然后为从 `IEntityComponent` 派生的类型创建 `entt::type_hash` 特化：
 
 ```C++
 template<std::derived_from<IEntityComponent> Type>
@@ -338,11 +295,11 @@ struct entt::type_hash<Type> {
 };
 ```
 
-## Using Components
+## 使用组件
 
 ### EntityContext
 
-Minecraft's `EntityContext` class encapsulates the required state for accessing an entity's components.
+Minecraft 的 `EntityContext` 类封装了访问实体组件所需的必要状态。
 
 ::: code-group
 
@@ -386,16 +343,14 @@ struct EntityContext : EntityContextBase {
 :::
 
 > [!NOTE]
-> For simplicity, these game classes are expressed as structs to imply public visibility. The actual type designation
-> and member visibility may vary from Minecraft's actual source code.
+> 为了简单起见，这些游戏类被表示为结构体，以暗示公共可见性。实际的类型指定和成员可见性可能与 Minecraft 的实际源代码有所不同。
 
-Samples from this point on will be based on the most recent revision of the relevant Minecraft ABI (Currently 1.20.50+).
-If you are developing for a different Minecraft release, slight modifications may be required.
+从现在开始的示例将基于相关 Minecraft ABI 的最新修订版（目前为 1.20.50+）。如果您正在为不同的 Minecraft 版本开发，则可能需要进行细微的修改。
 
-We can define a few helper functions for accessing and modifying components:
+我们可以定义一些辅助函数来访问和修改组件：
 ```C++
 struct EntityContext {
-    // ... fields omitted ...
+    // ... 省略字段 ...
 
     template<std::derived_from<IEntityComponent> T>
     [[nodiscard]] T* tryGetComponent() {
@@ -425,53 +380,46 @@ struct EntityContext {
 ```
 
 > [!WARNING]
-> Both `getOrAddComponent` and `removeComponent` call the non-const version of `entt::basic_registry<...>::assure<T>`.
-> If either of these functions are called before storage for the component `T` has been created by Minecraft, the
-> storage will be created by your mod. The undesired consequence of this is that the storage object's virtual function
-> table will be located in the read-only data section of your mod's binary. Unloading the mod after this point will
-> cause a game crash. While there are methods to prevent this error, this guide does not currently address them.
+> `getOrAddComponent` 和 `removeComponent` 都调用了 `entt::basic_registry<...>::assure<T>` 的非常量版本。如果在 Minecraft 创建组件 `T` 的存储之前调用了这些函数中的任何一个，则存储将由您的 Mod 创建。这带来的不良后果是，存储对象的虚函数表将位于您的 Mod 二进制文件的只读数据段中。在此之后卸载 Mod 将导致游戏崩溃。虽然有一些方法可以防止此错误，但本指南目前未解决这些方法。
 
 ### Actors
 
-Now that we have a definition of `EntityContext`, we need to be able to access an instance of it for Actors.
-Fortunately, this is an easy task:
+现在我们有了 `EntityContext` 的定义，我们需要能够访问 Actors 的实例。幸运的是，这是一项简单的任务：
 
 ```C++
 class Actor {
 public:
-    /* this + 0x0 */ Actor_vtbl* __vftable; // Compiler generated
+    /* this + 0x0 */ Actor_vtbl* __vftable; // 编译器生成
     /* this + 0x8 */ EntityContext entity;
-    // ... fields omitted ...
+    // ... 省略字段 ...
 };
 ```
 
-If defining the actual struct for `Actor` isn't preferred, [libhat](https://github.com/BasedInc/libhat) provides
-`hat::member_at`, a utility function for accessing members from class data offsets.
+如果不想定义 `Actor` 的实际结构体，[libhat](https://github.com/BasedInc/libhat) 提供了 `hat::member_at`，这是一个用于从类数据偏移量访问成员的实用程序函数。
 
 ```C++
 class Actor {
 public:
-    // Utilize C++23's explicit this object parameter
-    // to avoid writing const and non-const overloads 
+    // 利用 C++23 的显式 this 对象参数
+    // 以避免编写常量和非常量重载
     [[nodiscard]] auto& getEntity(this auto& self) {
         return hat::member_at<EntityContext>(&self, 0x8);
     }
 };
 ```
 
-Now if we obtain an instance of an `Actor`, such as the client's local player, accessing components is simple:
+现在，如果我们获得 `Actor` 的实例，例如客户端的本地玩家，访问组件就很简单了：
 
 ```C++
 void onLevelTick() {
     auto& player = clientInstance->getLocalPlayer().getEntity();
-    
+
     if (player.hasComponent<FlagComponent<OnGroundFlag>>()) {
-        logToChat("Player is on the ground");
+        logToChat("玩家在地面上");
     }
 
     if (auto* svc = player.tryGetComponent<StateVectorComponent>(); svc) {
-        logToChat("Player is at {}", svc->pos);
+        logToChat("玩家在 {}", svc->pos);
     }
 }
-
 ```
