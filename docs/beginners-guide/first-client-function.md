@@ -1,55 +1,62 @@
-# Finding your first function on the client
 
-This guide is meant as a beginners introduction into using IDA to be able to find functions on the client, where there are no symbols. To follow this guide you will need to have already analysed the `Windows Client` and `Windows BDS`, or to save time you can download pre-analysed versions [here](https://www.mediafire.com/folder/ammda8wfvbw9x/The_Flopper_Databases).
+# 在客户端上找到你的第一个函数
 
-## Navigating IDA 
+本指南旨在为初学者介绍如何使用 IDA 在客户端上查找函数，在客户端上通常没有符号信息。要学习本指南，你需要已经分析过 `Windows Client` 和 `Windows BDS`，或者为了节省时间，你可以从[这里](https://www.mediafire.com/folder/ammda8wfvbw9x/The_Flopper_Databases)下载预先分析好的版本。
 
-In the database for BDS, we will navigate to the function `Item::Item`. To do this first right click in the list of functions and hit `Modify Filters`.
+## 导航 IDA
+
+在 BDS 的数据库中，我们将导航到函数 `Item::Item`。为此，首先在函数列表中右键单击并点击 `Modify Filters`（修改过滤器）。
 
 ![modify filters option](/beginners-guide/first-client-function/modify-filters.png)
+（修改过滤器选项）
 
-Enable the `Regular Expression` option, type `^Item::`, and hit add. This will find all functions that are in the `Item` class.
+启用 `Regular Expression`（正则表达式）选项，输入 `^Item::`，然后点击 `add`（添加）。这将找到所有在 `Item` 类中的函数。
 
 ![filtering for item](/beginners-guide/first-client-function/item-filter.png)
+（为物品过滤）
 
-Close the filter window, and in the list of functions find `Item::Item` in the list, and double click it. This will take you to the function in an `IDA View` window, which shows the assembly of the function. To make it more understandable, we can dissasemble the function by hitting `F5`, whilst also having the function selected in the `IDA View` window.
+关闭过滤器窗口，并在函数列表中找到 `Item::Item`，双击它。这将带你到一个 `IDA View` 窗口中的函数，该窗口显示函数的汇编代码。为了使其更易于理解，我们可以反汇编该函数，方法是在 `IDA View` 窗口中选中该函数的同时按下 `F5`。
 
-## Looking for identifyable information
+## 寻找可识别的信息
 
-In the pseudocode window, we can identify some information about this function. The first thing we can see the function definition itself `_QWORD *__fastcall Item::Item(_QWORD *a1, _QWORD *a2, __int16 a3)`, we can see that it takes in 3 parameters.
+在伪代码窗口中，我们可以识别有关此函数的一些信息。我们首先可以看到函数定义本身 `_QWORD *__fastcall Item::Item(_QWORD *a1, _QWORD *a2, __int16 a3)`，我们可以看到它接受 3 个参数。
 
-Scrolling down in the pseudocode window, we can also see that this function uses two strings `atlas.items` and `minecraft`.
+在伪代码窗口中向下滚动，我们还可以看到此函数使用了两个字符串 `atlas.items` 和 `minecraft`。
 
 ![strings in item](/beginners-guide/first-client-function/item-ctor-strings.png)
+（物品中的字符串）
 
-## Finding the function on the client
+## 在客户端上查找函数
 
-Open up your database for the client in another instance of IDA, we can do a search for strings and where they are used, to do this at the top of your screen under `Search` click `Sequence of bytes...`. In the window enter `"atlas.items"`, leave the default options, and click OK. In the list, there should only be one result, so double click it. Next hover over the strings name `aAtlasItem` and press `X`, this will bring up a list of "xrefs" (cross references), which is a list of functions where this string is being used.
+在另一个 IDA 实例中打开你的客户端数据库，我们可以搜索字符串以及它们的使用位置。为此，在屏幕顶部的 `Search`（搜索）下，点击 `Sequence of bytes...`（字节序列...）。在窗口中输入 `"atlas.items"`，保留默认选项，然后点击 OK。在列表中，应该只有一个结果，所以双击它。接下来，将鼠标悬停在字符串名称 `aAtlasItem` 上并按下 `X`，这将弹出一个 "xrefs"（交叉引用）列表，这是一个使用此字符串的函数列表。
 
 ![opening xrefs for atlas.items](/beginners-guide/first-client-function/atlas-item-strings-client.png)
+（为 atlas.items 打开交叉引用）
 
-When doing the search on bds for the string `atlas.items`, we can see that the string referenced exactly once by the Item constructor. 
+当在 bds 上搜索字符串 `atlas.items` 时，我们可以看到该字符串仅被 Item 构造函数引用一次。
 
 ![bds xrefs for atlas.items](/beginners-guide/first-client-function/atlas-item-strings-bds.png)
+（bds 中 atlas.items 的交叉引用）
 
-This is different to the client where the string is referenced 6 times. The difference in the amount of xrefs is likely because of functions that are only on the client, and therefore aren't on the server.
+这与客户端不同，在客户端中，该字符串被引用了 6 次。交叉引用数量的差异可能是由于某些函数仅存在于客户端上，因此不在服务器上。
 
-## Identifying which functions it isn't
+## 识别哪些函数不是
 
-Looking at the list of xrefs for the string on client, we can immediately disregard the first 3 xrefs due to it all being the same function, as we know from earlier the Item constructor only references the string once. When looking at the list of xrefs we only need to look at the function name, and not the information after a `+` or a `:`, as this is just saying where in the function it is being used.
+查看客户端上字符串的交叉引用列表，我们可以立即排除前 3 个交叉引用，因为它们都是同一个函数，正如我们之前所知，Item 构造函数仅引用该字符串一次。查看交叉引用列表时，我们只需要查看函数名称，而无需查看 `+` 或 `:` 之后的信息，因为这只是说明它在函数中的使用位置。
 
 ![what to look at](/beginners-guide/first-client-function/xrefs-what-to-lookat.png)
+（看什么）
 
-This leaves us with exactly three options for functions that `Item::Item` could be on the client. Since we have such a small amount of functions to go through, we can look at each one individually and see if we can rule them out. We can navigate to the function by double clicking it, then go into the pseudocode window by hitting `F5`. 
+这为我们留下了正好三个可能的函数，它们可能是客户端上的 `Item::Item`。由于我们需要检查的函数数量很少，我们可以单独查看每个函数，看看是否可以排除它们。我们可以通过双击函数来导航到该函数，然后通过按 `F5` 进入伪代码窗口。
 
-Searching from top to bottom:
+从上到下搜索：
 
-- We can rule out the first of the three candidates, as we can see that it uses the string `"textures/particle/particles"`, which the item constructor does not use.
+- 我们可以排除三个候选函数中的第一个，因为我们可以看到它使用了字符串 `"textures/particle/particles"`，而 item 构造函数没有使用该字符串。
 
-- We can also rule out the second of the three, for the same reason, as it uses the string `"textures/items/recovery_compass_atlas"`
+- 我们也可以出于同样的原因排除三个候选函数中的第二个，因为它使用了字符串 `"textures/items/recovery_compass_atlas"`。
 
-This leaves us with exactly one function left that it can be, and therefore we have now found the constructor on the client! In the pseudocode window for the last function we can also see that the parameters for this function lines up too `_QWORD *__fastcall sub_1429DA770(__int64 a1, _QWORD *a2, __int16 a3)`
+这为我们留下了一个函数，它可能是，因此我们现在已经在客户端上找到了构造函数！在最后一个函数的伪代码窗口中，我们还可以看到此函数的参数也对齐了 `_QWORD *__fastcall sub_1429DA770(__int64 a1, _QWORD *a2, __int16 a3)`
 
-## Labeling the function
+## 标记函数
 
-Now that we have found the constructor for the Item class on the client, we can copy its symbol over from BDS. In the pseudocode window for the function on BDS, click on the name and hit `n` and copy its existing name. Next in the pseudocode for the client, again hit `n` on the name, and paste in that symbol `??0Item@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@F@Z`
+现在我们已经在客户端上找到了 Item 类的构造函数，我们可以从 BDS 复制它的符号。在 BDS 上函数的伪代码窗口中，单击名称并按 `n` 并复制其现有名称。接下来，在客户端的伪代码中，再次在名称上按 `n`，并粘贴该符号 `??0Item@@QEAA@AEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@F@Z`$char_traits@D@std@@V?$allocator@D@2@@std@@F@Z`
