@@ -1,26 +1,29 @@
-# Building Amethyst
+# 构建 Amethyst
 
-This guide will help you setup [Amethyst](https://github.com/FrederoxDev/Amethyst) locally. There are a few pre-requisites here to getting started.
+本指南将帮助你在本地设置 [Amethyst](https://github.com/FrederoxDev/Amethyst)。开始之前，需要先进行一些准备工作。
 
-- The first thing you will need to setup is [Visual Studio](https://visualstudio.microsoft.com/vs/community/), download the latest release as well as the `Desktop Development with C++` workload under the modify window.
+- 首先你需要安装 [Visual Studio](https://visualstudio.microsoft.com/vs/community/)，下载最新版本，并在修改窗口中勾选 `使用 C++ 的桌面开发` 工作负载。
 
 ![](/beginners-guide/setup-dev-env/required_workloads.png)
+（所需工作负载）
 
-- Secondly you will need to setup an assembly compiler called [NASM](https://nasm.us/), download the latest stable release. You will need to manually add NASM to your path environment variables. The default install directory is at `C:\Program Files\NASM`.
+- 其次，你需要安装一个汇编编译器 [NASM](https://nasm.us/)，下载最新的稳定版本。你需要手动将 NASM 添加到你的路径环境变量中。默认安装目录为 `C:\Program Files\NASM`。
 
-## Cloning and Building
+## 克隆和构建
 
-In a directory of your choice run the [git](https://git-scm.com/downloads) command to locally clone the Amethyst repo:
+在你选择的目录中运行 [git](https://git-scm.com/downloads) 命令，以在本地克隆 Amethyst 仓库：
 ```sh
 git clone https://github.com/FrederoxDev/Amethyst.git
 ```
 
-Next, you will need to make an environment variable that points to this source directory called `amethyst_src`. This will allow for any locally built mods to directly access the source files of AmethystAPI.
+接下来，你需要创建一个名为 `amethyst_src` 的环境变量，指向此源代码目录。这将允许任何本地构建的 Mod 直接访问 AmethystAPI 的源文件。
 
 ![](/beginners-guide/setup-dev-env/amethyst_env.png)
+（Amethyst 环境变量）
 
-Now to build AmethystRuntime, open the CMake-gui (This should have been installed with the c++ workload with visual studio earlier). In the first field enter the path to the Amethyst directory, and then in the second field that same path with `/build` appended to the end.
+现在要构建 AmethystRuntime，打开 CMake-gui（这应该已随 Visual Studio 的 C++ 工作负载一起安装）。在第一个字段中输入 Amethyst 目录的路径，然后在第二个字段中输入相同的路径，并在末尾附加 `/build`。
 
-![](/beginners-guide/setup-dev-env/amethyst_path.png) 
+![](/beginners-guide/setup-dev-env/amethyst_path.png)
+（Amethyst 路径）
 
-From here, hit the three buttons at the bottom of cmake-gui from left-to-right, leaving all of the default options. Now you will have a `.sln` of AmethystRuntime, finally just hit `Ctrl + Shift + B` to build the project.
+从这里开始，从左到右点击 cmake-gui 底部的三个按钮，保留所有默认选项。现在你将拥有 AmethystRuntime 的 `.sln` 文件，最后只需按 `Ctrl + Shift + B` 来构建项目。
