@@ -1,12 +1,12 @@
-# Vtables
+## 虚函数表 (Vtables)
 
 > [!WARNING]
-> Article is not complete, and is just up to get feedback right now. If there are areas of this article which you find hard to understand, please send me a message on discord on the parts which were unclear so i can improve the article
+> 本文尚未完成，目前发布仅为收集反馈。如果您发现本文中有难以理解的部分，请在 Discord 上给我留言，指出哪些部分不清楚，以便我改进文章。
 
 > [!INFO]
-> This article covers a topic that typically does not need to be thought about while programming, however in modding, it is important to understand how c++ compilers implement virtual functions under the hood.
+> 本文涵盖了一个通常在编程时无需考虑的主题，但在 Modding (模组制作) 中，理解 C++ 编译器如何在底层实现虚函数非常重要。
 
-Let's start off with some example code, where we have two classes, where `class Cat` is inheriting from `class Animal`
+让我们从一些示例代码开始，其中我们有两个类，`class Cat` 继承自 `class Animal`。
 
 ```c++
 class Animal {
@@ -33,19 +33,19 @@ public:
 };
 ```
 
-Notice how in our base class Animal, we declare a virutal function `getName` which returns a generic string name, whereas in our class Cat, we override this function to return a more specific string.
+请注意，在我们的基类 Animal 中，我们声明了一个虚函数 `getName`，它返回一个通用的字符串名称，而在我们的类 Cat 中，我们重写了这个函数以返回一个更具体的字符串。
 
-## Why do vtables exist?
+## 为什么虚函数表 (vtables) 会存在？
 
-Say that we want to call this `getName` function for each element of a `std::vector<std::shared_ptr<Animal>>`, how does the c++ compiler know what function it should be calling each time? 
+假设我们想要为 `std::vector<std::shared_ptr<Animal>>` 中的每个元素调用 `getName` 函数，C++ 编译器如何知道每次应该调用哪个函数呢？
 
 ```c++
-// Add instances of Animal and Cat to a vector
+// 将 Animal 和 Cat 的实例添加到 vector 中
 std::vector<std::shared_ptr<Animal>> animals = {};
 animals.push_back(std::make_shared<Animal>());
 animals.push_back(std::make_shared<Cat>());
 
-// Call our getName function on each element in the vector
+// 对 vector 中的每个元素调用我们的 getName 函数
 for (const auto& animal : animals) {
     Log::Info("name: '{}'", animal->getName());
 }
@@ -55,9 +55,9 @@ for (const auto& animal : animals) {
 [INFO] name: '<cat>'
 ```
 
-## How does the compiler know what function to call?
+## 编译器如何知道要调用哪个函数？
 
-To implement this, the c++ compiler adds a new hidden pointer to the beginning of the class, which points to a classes virtual function table, or vftable/vtable for short. Inside of this vtable, it contains pointers to all virtual functions associated with the class:
+为了实现这一点，C++ 编译器在类的开头添加了一个新的隐藏指针，该指针指向类的虚函数表，简称 vftable 或 vtable。在这个 vtable 内部，它包含了指向与该类关联的所有虚函数的指针：
 
 ```c++
 struct Animal::vftable {
@@ -74,43 +74,41 @@ struct Cat::vftable {
 };
 ```
 
-- The first thing to notice, is that the virtual functions for both of these classes are in completely identical order.
+- 首先要注意的是，这两个类的虚函数顺序完全相同。
 
-- However, take a look at the `getName` and the destructor, and you will see that both contain pointers to that classes specific implementation of the function.
+- 然而，看看 `getName` 和析构函数，你会看到两者都包含指向该类特定函数实现的指针。
 
-- Lastly, take a look at the `getPopulation` function, you will notice that in both vtables, it still points to the original `Animal::getPopulation` implementation. That is because in our class Cat, we do not override this function and so it uses the one from the original class.
+- 最后，看看 `getPopulation` 函数，你会注意到在两个 vtable 中，它仍然指向原始的 `Animal::getPopulation` 实现。这是因为在我们的类 Cat 中，我们没有重写这个函数，所以它使用了原始类中的那个实现。
 
-## Hidden vftable pointers
-As mentioned earlier, a hidden pointer is placed at the very beginning of the class to its vftable.
+## 隐藏的 vftable 指针
+如前所述，一个隐藏的指针被放置在类的最开始位置，指向其 vtable。
 
 ```c++
 class Animal {
 public:
-    Animal::vftable* vtbl; // <- Compiler generated pointer to the vftable
-                           // placed exactly at the beginning of the class
-                           // before any member variables
+    Animal::vftable* vtbl; // <- 编译器生成的指向 vftable 的指针
+                           //    正好放置在类的开头
+                           //    在任何成员变量之前
 }
 ```
 ```c++
 class Cat : public Animal {
 public:
-    Cat::vftable* vtbl; // <- Notice how the pointer has been replaced with a
-                        // pointer to the vftable which is owned by cat
+    Cat::vftable* vtbl; // <- 注意指针已被替换为指向
+                        //    Cat 拥有的 vftable 的指针
 }
 ```
 
-## Calling virtual functions
+## 调用虚函数
 
-And so, going back to our example earlier, where we were iterating each animal in a vector, under the hood, it actually looks more like this:
+因此，回到我们之前的例子，我们在 vector 中迭代每个 animal，在底层，它实际上更像是这样：
 
 ```c++
 for (const auto& animal : animals) {
     Log::Info("name: '{}'", animal->vtbl->getName());
-                                // ^ finds the function pointer inside of 
-                                // the vftable and calls that function,
-                                // without having to know what the type of
-                                // animal actually is.
+                                // ^ 在 vftable 内部找到函数指针并调用该函数，
+                                //   而无需知道 animal 的实际类型是什么。
 }
 ```
 
-Since when we inherit a class, we replace the vtable pointer, with a pointer to the new classes vtable, this handles switching what function gets called automatically, without the compiler having to know the types of each pointer in the vector.
+由于当我们继承一个类时，我们将 vtable 指针替换为指向新类的 vtable 的指针，这会自动处理切换调用哪个函数，而无需编译器知道 vector 中每个指针的类型。
