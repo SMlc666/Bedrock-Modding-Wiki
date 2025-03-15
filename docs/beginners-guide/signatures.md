@@ -1,31 +1,38 @@
-# Signatures
+# 签名（Signatures）
 
-To identify a function from within a mod, we can use something called a **signature**, a signature of a function is made by looking at the bytes of a function, and finding a section of bytes that is completely unique to this function. Luckily, we don't need to look at the bytes of the function ourselves, instead we can just use a signature generator plug-in inside of IDA.
+要从模块中识别特定函数，我们可以使用一种称为**签名（Signature）**的技术。函数的签名是通过分析函数的字节码，找到一段完全唯一于该函数的字节序列生成的。幸运的是，我们无需手动查看字节码，而是可以通过IDA（反汇编工具）中的**签名生成插件**自动完成这一过程。
 
-It is highly likely that this signature generator plug-in will come with your installation of IDA, but in the case where it doesn't you can get the plug-in [here](https://github.com/A200K/IDA-Pro-SigMaker).
+通常情况下，IDA的默认安装会包含此插件。如果未找到，可从此处下载：[IDA-Pro-SigMaker](https://github.com/A200K/IDA-Pro-SigMaker)。
 
-## Generating a signature
+---
 
-> [!IMPORTANT]
-Inside of the pseudocode window, ensure your cursor is selected on the function name. This is important to make sure that we are taking a signature at the beginnining of the function.
+### 生成签名步骤
+
+> [!重要提示]
+> 在伪代码窗口中，请确保光标选中函数名称。这是为了确保我们从函数起始位置提取签名。
 
 ![](/beginners-guide/signatures/cursor-on-start.png)
 
-Next, hit the key combination `Ctrl + Alt + S` or alternativly press `Edit > Plugins > Signature Maker`, and leave the default options provided, as shown in the screenshot below.
+1. 按下快捷键 `Ctrl + Alt + S`，或通过菜单栏选择 `Edit > Plugins > Signature Maker`。
+2. 保持默认选项（如下图所示），直接点击 `OK`。
 
 ![](/beginners-guide/signatures/signature-maker-options.png)
 
-Finally then press `OK`. Next look for the `Output` window, inside the signature for this function should be printed. Simply from here just copy out your signature, and you're done!
+3. 完成后，在 `Output` 窗口中会显示生成的签名，直接复制即可使用。
 
 ![](/beginners-guide/signatures/signature-output.png)
 
-## Why use a signature?
+---
 
-Signatures are quite useful because they can be used to identify the same function across multiple versions of the game, assuming that the function itself wasn't modified between the two versions. For that exact reason, they are much better than using hardcoded addresses since those will always break between version.
+### 为何使用签名？
 
-## When shouldn't you use a signature?
+签名的核心优势在于**跨版本稳定性**。只要函数本身未被修改，同一签名可在游戏的不同版本中持续定位目标函数。相比硬编码地址（地址随版本更新必然变化），签名大幅降低了维护成本。
 
-Take the example where you have function A and function B, both functions are very similar
+---
+
+### 何时应避免使用签名？
+
+当多个函数结构高度相似时，签名可能失效。例如以下两个函数：
 
 ```c++
 void functionA(int a) {
@@ -37,4 +44,10 @@ void functionB(int b) {
 }
 ```
 
-In this scenario these functions would have nearly identical signatures, which means that the two signatures enter what is almost a "race" and continously grow in size. This can be an issue when it is a larger function with more functionality, the signatures can end up growing over 1000 bytes long. Generally this is a good scenario to just use a hardcoded address, since a signature of that size is awkward to work with.
+它们的字节码差异极小，生成签名时会因特征重叠导致签名长度急剧膨胀（甚至超过1000字节）。此时，使用硬编码地址反而更高效，因为过长的签名会降低可维护性。
+
+---
+
+### 总结
+- **适用场景**：函数逻辑稳定、跨版本需定位时。
+- **不适用场景**：函数结构高度相似或频繁变动时。with.
